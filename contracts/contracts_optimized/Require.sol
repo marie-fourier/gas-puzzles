@@ -2,7 +2,6 @@
 pragma solidity 0.8.15;
 
 contract OptimizedRequire {
-    uint256 constant COOLDOWN = 1 minutes;
     uint256 lastPurchaseTime;
 
     function purchaseToken() external payable {
