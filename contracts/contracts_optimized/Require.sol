@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 contract OptimizedRequire {
-    uint256 lastPurchaseTime;
+    uint256 lastPurchaseTime = 1; // settings non-zero value to zero costs 20k
 
     function purchaseToken() external payable {
         assembly {
