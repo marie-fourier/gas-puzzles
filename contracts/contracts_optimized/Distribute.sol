@@ -2,30 +2,33 @@
 pragma solidity 0.8.15;
 
 contract OptimizedDistribute {
-    address[4] public contributors;
-    uint256 public createTime;
+    // the immutable variables will not get stored in the storage.
+    // all references to these values will be replaced by the values
+    // they are assigned to in the constructor
+    // thus this will save us a lot of cold storage reads
+    address payable immutable contributors0;
+    address payable immutable contributors1;
+    address payable immutable contributors2;
+    address payable immutable contributors3;
+    uint256 public immutable releaseTime;
 
-    constructor(address[4] memory _contributors) payable {
-        contributors = _contributors;
-        createTime = block.timestamp;
+    constructor(address payable[4] memory _contributors) payable {
+        contributors0 = _contributors[0];
+        contributors1 = _contributors[1];
+        contributors2 = _contributors[2];
+        contributors3 = _contributors[3];
+        releaseTime = block.timestamp + 1 weeks;
     }
 
-    function distribute() external {
+    function distribute() external { // 21,000
         require(
-            block.timestamp > createTime + 1 weeks,
+            block.timestamp > releaseTime,
             "cannot distribute yet"
         );
-        uint256 amount;
-        assembly {
-            amount := div(selfbalance(), 4)
-        }
-        payable(contributors[0]).transfer(amount);
-        payable(contributors[1]).transfer(amount);
-        payable(contributors[2]).transfer(amount);
-        payable(contributors[3]).transfer(amount);
+        uint256 amount = address(this).balance >> 2;
+        contributors0.transfer(amount);
+        contributors1.transfer(amount);
+        contributors2.transfer(amount);
+        selfdestruct(contributors3);
     }
 }
-
-// orig:                71 953
-// unchecked amount:    71 897
-// 
