@@ -1,22 +1,28 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.15;
 
-contract ArraySort {
-    function sortArray(uint256[] calldata data) external pure returns (uint256[] memory) {
-        uint256 dataLen = data.length;
-
-        // Create 'working' copy
-        uint[] memory _data = new uint256[](dataLen);
-        for (uint256 k = 0; k < _data.length; k++) {
-            _data[k] = data[k];
-        }
-
-        for (uint256 i = 0; i < _data.length; i++) {
-            for (uint256 j = i+1; j < _data.length; j++) {
-                if(_data[i] > _data[j]){
-                    uint256 temp = _data[i];
-                    _data[i] = _data[j];
-                    _data[j] = temp;
+contract OptimizedArraySort {
+    function sortArray(uint256[] memory _data)
+        external
+        pure
+        returns
+        (uint256[] memory)
+    {
+        assembly {
+            let dataLen := mload(_data)
+            for { let i := 0 } lt(i, dataLen) { i := add(i, 1) }
+            {
+                for { let j := add(i, 1) } lt(j, dataLen) { j := add(j, 1) }
+                {
+                    let _i := add(_data, mul(0x20, add(i, 1)))
+                    let _j := add(_data, mul(0x20, add(j, 1)))
+                    let _dataI := mload(_i)
+                    let _dataJ := mload(_j)
+                    if gt(_dataI, _dataJ)
+                    {
+                        mstore(_i, _dataJ)
+                        mstore(_j, _dataI)
+                    }
                 }
             }
         }
