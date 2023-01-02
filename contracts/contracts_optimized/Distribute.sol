@@ -2,8 +2,8 @@
 pragma solidity 0.8.15;
 
 contract OptimizedDistribute {
-    // the immutable variables will not get stored in the storage.
-    // all references to these values will be replaced by the values
+    // immutable variables will not get stored in the storage.
+    // all references to these variables will be replaced by the values
     // they are assigned to in the constructor
     // thus this will save us a lot of cold storage reads
     address payable immutable contributors0;
@@ -20,7 +20,7 @@ contract OptimizedDistribute {
         releaseTime = block.timestamp + 1 weeks;
     }
 
-    function distribute() external { // 21,000
+    function distribute() external {
         require(
             block.timestamp > releaseTime,
             "cannot distribute yet"
