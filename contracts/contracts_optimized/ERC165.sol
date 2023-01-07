@@ -105,3 +105,6 @@ contract NFTGiver {
         award.transferFrom(address(this), msg.sender, 1337);
     }
 }
+
+contract NFTGiverAttacker {
+}

@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 contract OptimizedRequire {
-    uint256 lastPurchaseTime = 1; // settings non-zero value to zero costs 20k
+    uint256 lastPurchaseTime;
 
     function purchaseToken() external payable {
         assembly {
@@ -13,10 +13,13 @@ contract OptimizedRequire {
                     add(sload(lastPurchaseTime.slot), 60) // 1 minute
                 ))
             ) {
-                mstore(0x00, 0x08c379a000000000000000000000000000000000000000000000000000000000)
-                mstore(0x20, 0x0000002000000000000000000000000000000000000000000000000000000000)
-                mstore(0x40, 0x0000000f63616e6e6f7420707572636861736500000000000000000000000000)
-                revert(0x00, 0x64)
+                // EIP 838
+                let error := 0x00
+                mstore(error, 0x08c379a0) // function selector
+                mstore(add(error, 0x20), 0x20) // string offset
+                mstore(add(error, 0x40), 0x0f) // length("cannot purchase") = 0x0f bytes
+                mstore(add(error, 0x60), 0x63616e6e6f742070757263686173650000000000000000000000000000000000) // "cannot purchase"
+                revert(add(error, 0x1c), sub(0x80, 0x1c)) // function selector bytes start at (fmp + 28bytes)
             }
             sstore(lastPurchaseTime.slot, timestamp())
         }
